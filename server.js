@@ -12,13 +12,19 @@ app.use(bodyParser.json());
 // Middleware to check API key
 const API_KEY = process.env.API_KEY;
 
-app.use((req, res, next) => {
-  const apiKey = req.headers['x-api-key'];
-  if (apiKey !== API_KEY) {
-    return res.status(403).json({ message: 'Forbidden: Invalid API Key' });
-  }
-  next();
-});
+// Debugging: Log the loaded API key from the environment
+console.log('Loaded API Key from .env:', API_KEY);
+
+// Remove API key check on startup
+// Comment out the middleware for API key validation
+// app.use((req, res, next) => {
+//   console.log('Received API Key:', req.headers['x-api-key']);
+//   const apiKey = req.headers['x-api-key'];
+//   if (apiKey !== API_KEY) {
+//     return res.status(403).json({ message: 'Forbidden: Invalid API Key' });
+//   }
+//   next();
+// });
 
 // MongoDB Connection
 mongoose.connect('mongodb+srv://lxdavis9lxd:Mynameissora99@cluster0.kjlacwu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
