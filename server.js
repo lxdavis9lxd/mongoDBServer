@@ -8,6 +8,17 @@ const PORT = 5000;
 // Middleware
 app.use(bodyParser.json());
 
+// Middleware to check API key
+const API_KEY = 'your-generated-api-key';
+
+app.use((req, res, next) => {
+  const apiKey = req.headers['x-api-key'];
+  if (apiKey !== API_KEY) {
+    return res.status(403).json({ message: 'Forbidden: Invalid API Key' });
+  }
+  next();
+});
+
 // MongoDB Connection
 mongoose.connect('mongodb+srv://lxdavis9lxd:Mynameissora99@cluster0.kjlacwu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
   useNewUrlParser: true,
