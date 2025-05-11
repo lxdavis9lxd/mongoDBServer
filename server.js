@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+require('dotenv').config();
 
 const app = express();
 const PORT = 5000;
@@ -9,7 +10,7 @@ const PORT = 5000;
 app.use(bodyParser.json());
 
 // Middleware to check API key
-const API_KEY = 'your-generated-api-key';
+const API_KEY = process.env.API_KEY;
 
 app.use((req, res, next) => {
   const apiKey = req.headers['x-api-key'];
