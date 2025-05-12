@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+</head>
+<body>
+    <h1>MongoDB API Test</h1>
+    
+    <div>
+        <h2>Test GET /</h2>
+        <button id="testRoot">Test Root Endpoint</button>
+        <div id="rootResult"></div>
+    </div>
+
+    <div>
+        <h2>Test GET /items</h2>
+        <button id="testGetItems">Test GET Items</button>
+        <div id="getItemsResult"></div>
+    </div>
+
+    <div>
+        <h2>Test POST /items</h2>
+        <input type="text" id="itemName" placeholder="Item Name" value="Test Item">
+        <input type="number" id="itemQuantity" placeholder="Quantity" value="10">
+        <button id="testPostItem">Test POST Item</button>
+        <div id="postItemResult"></div>
+    </div>
+
+    <script>
+        document.getElementById('testRoot').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/');
+                const text = await response.text();
+                document.getElementById('rootResult').textContent = `Status: ${response.status}, Response: ${text}`;
+            } catch (error) {
+                document.getElementById('rootResult').textContent = `Error: ${error.message}`;
+            }
+        });
+
+        document.getElementById('testGetItems').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/items');
+                const result = await response.text();
+                document.getElementById('getItemsResult').textContent = `Status: ${response.status}, Response: ${result}`;
+            } catch (error) {
+                document.getElementById('getItemsResult').textContent = `Error: ${error.message}`;
+            }
+        });
+
+        document.getElementById('testPostItem').addEventListener('click', async () => {
+            try {
+                const name = document.getElementById('itemName').value;
+                const quantity = document.getElementById('itemQuantity').value;
+                
+                const response = await fetch('/items', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, quantity: Number(quantity) }),
+                });
+                
+                const result = await response.text();
+                document.getElementById('postItemResult').textContent = `Status: ${response.status}, Response: ${result}`;
+            } catch (error) {
+                document.getElementById('postItemResult').textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

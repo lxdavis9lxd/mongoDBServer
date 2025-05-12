@@ -60,6 +60,46 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add CORS headers to allow cross-origin requests
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
+// Serve static files from the current directory
+app.use(express.static(__dirname));
+
+// Add a middleware to log all requests and responses
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Request Headers:', req.headers);
+  
+  // Capture the original send method
+  const originalSend = res.send;
+  
+  // Override the send method
+  res.send = function(body) {
+    console.log(`Response Status: ${res.statusCode}`);
+    // Call the original send method
+    return originalSend.call(this, body);
+  };
+  
+  next();
+});
+
+// Test endpoint to verify authorization
+app.get('/auth-test', (req, res) => {
+  console.log('Auth test called with headers:', req.headers);
+  res.json({ message: 'Authorization test successful', headers: req.headers });
+});
+
 // Create
 app.post('/items', async (req, res) => {
   console.log('POST /items called with body:', req.body);
