@@ -25,12 +25,12 @@
             const quantity = document.getElementById('quantity').value;
 
             try {
-                const response = await fetch('/items', {
+                const response = await fetch('./items', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ name, quantity }),
+                    body: JSON.stringify({ name, quantity: parseInt(quantity) }),
                 });
 
                 if (response.ok) {
