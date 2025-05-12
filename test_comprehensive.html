@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB API Comprehensive Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .result {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 150px;
+        }
+        #testAll {
+            background-color: #2196F3;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        #testAll:hover {
+            background-color: #0b7dda;
+        }
+        .clear-btn {
+            background-color: #f44336;
+        }
+        .clear-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <h1>MongoDB API Comprehensive Test</h1>
+    
+    <button id="testAll">Run All Tests</button>
+    <button id="clearAll" class="clear-btn">Clear All Results</button>
+    
+    <!-- Root Endpoint Test -->
+    <div class="test-section">
+        <h2>1. Test Root Endpoint (GET /)</h2>
+        <button id="testRoot">Test</button>
+        <div id="rootResult" class="result"></div>
+    </div>
+
+    <!-- Get All Items Test -->
+    <div class="test-section">
+        <h2>2. Get All Items (GET /items)</h2>
+        <button id="getAllItems">Test</button>
+        <div id="getAllItemsResult" class="result"></div>
+    </div>
+
+    <!-- Create Item Test -->
+    <div class="test-section">
+        <h2>3. Create New Item (POST /items)</h2>
+        <input type="text" id="createName" placeholder="Item Name" value="Test Item">
+        <input type="number" id="createQuantity" placeholder="Quantity" value="10">
+        <button id="createItem">Test</button>
+        <div id="createItemResult" class="result"></div>
+    </div>
+
+    <!-- Get Item by ID Test -->
+    <div class="test-section">
+        <h2>4. Get Item by ID (GET /items/:id)</h2>
+        <input type="text" id="getItemId" placeholder="Item ID">
+        <button id="getItemById">Test</button>
+        <div id="getItemByIdResult" class="result"></div>
+    </div>
+
+    <!-- Update Item Test -->
+    <div class="test-section">
+        <h2>5. Update Item (PUT /items/:id)</h2>
+        <input type="text" id="updateItemId" placeholder="Item ID">
+        <input type="text" id="updateName" placeholder="New Name" value="Updated Item">
+        <input type="number" id="updateQuantity" placeholder="New Quantity" value="20">
+        <button id="updateItem">Test</button>
+        <div id="updateItemResult" class="result"></div>
+    </div>
+
+    <!-- Delete Item Test -->
+    <div class="test-section">
+        <h2>6. Delete Item (DELETE /items/:id)</h2>
+        <input type="text" id="deleteItemId" placeholder="Item ID">
+        <button id="deleteItem">Test</button>
+        <div id="deleteItemResult" class="result"></div>
+    </div>
+
+    <!-- Auth Test Endpoint -->
+    <div class="test-section">
+        <h2>7. Authorization Test (GET /auth-test)</h2>
+        <button id="testAuth">Test</button>
+        <div id="authTestResult" class="result"></div>
+    </div>
+
+    <script>
+        // Utility function to format JSON responses
+        function formatResponse(response) {
+            try {
+                return JSON.stringify(JSON.parse(response), null, 2);
+            } catch (e) {
+                return response;
+            }
+        }
+
+        // Helper function to display results
+        function displayResult(elementId, status, response, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${isSuccess ? 'success' : 'error'}">Status: ${status}</div>`;
+            element.innerHTML += `<div>Response: ${formatResponse(response)}</div>`;
+        }
+
+        // 1. Test Root Endpoint
+        async function testRoot() {
+            try {
+                const response = await fetch('./');
+                const text = await response.text();
+                displayResult('rootResult', response.status, text, response.ok);
+                return { success: response.ok, data: text };
+            } catch (error) {
+                displayResult('rootResult', 'Error', error.message, false);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // 2. Get All Items
+        async function getAllItems() {
+            try {
+                const response = await fetch('./items');
+                const text = await response.text();
+                displayResult('getAllItemsResult', response.status, text, response.ok);
+                
+                // If successful, update the item ID fields with the first item's ID if available
+                if (response.ok) {
+                    try {
+                        const items = JSON.parse(text);
+                        if (items.length > 0) {
+                            const firstItemId = items[0]._id;
+                            document.getElementById('getItemId').value = firstItemId;
+                            document.getElementById('updateItemId').value = firstItemId;
+                            document.getElementById('deleteItemId').value = firstItemId;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing items JSON:', e);
+                    }
+                }
+                
+                return { success: response.ok, data: text };
+            } catch (error) {
+                displayResult('getAllItemsResult', 'Error', error.message, false);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // 3. Create New Item
+        async function createItem() {
+            try {
+                const name = document.getElementById('createName').value;
+                const quantity = document.getElementById('createQuantity').value;
+                
+                const response = await fetch('./items', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, quantity: Number(quantity) }),
+                });
+                
+                const text = await response.text();
+                displayResult('createItemResult', response.status, text, response.ok);
+                
+                // If successful, update the item ID fields with the new item's ID
+                if (response.ok) {
+                    try {
+                        const newItem = JSON.parse(text);
+                        if (newItem && newItem._id) {
+                            document.getElementById('getItemId').value = newItem._id;
+                            document.getElementById('updateItemId').value = newItem._id;
+                            document.getElementById('deleteItemId').value = newItem._id;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing new item JSON:', e);
+                    }
+                }
+                
+                return { success: response.ok, data: text };
+            } catch (error) {
+                displayResult('createItemResult', 'Error', error.message, false);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // 4. Get Item by ID
+        async function getItemById() {
+            try {
+                const id = document.getElementById('getItemId').value;
+                if (!id) {
+                    displayResult('getItemByIdResult', 'Error', 'Please enter an item ID', false);
+                    return { success: false, error: 'ID is required' };
+                }
+                
+                const response = await fetch(`./items/${id}`);
+                const text = await response.text();
+                displayResult('getItemByIdResult', response.status, text, response.ok);
+                return { success: response.ok, data: text };
+            } catch (error) {
+                displayResult('getItemByIdResult', 'Error', error.message, false);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // 5. Update Item
+        async function updateItem() {
+            try {
+                const id = document.getElementById('updateItemId').value;
+                const name = document.getElementById('updateName').value;
+                const quantity = document.getElementById('updateQuantity').value;
+                
+                if (!id) {
+                    displayResult('updateItemResult', 'Error', 'Please enter an item ID', false);
+                    return { success: false, error: 'ID is required' };
+                }
+                
+                const response = await fetch(`./items/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        name: name || undefined,
+                        quantity: quantity ? Number(quantity) : undefined
+                    }),
+                });
+                
+                const text = await response.text();
+                displayResult('updateItemResult', response.status, text, response.ok);
+                return { success: response.ok, data: text };
+            } catch (error) {
+                displayResult('updateItemResult', 'Error', error.message, false);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // 6. Delete Item
+        async function deleteItem() {
+            try {
+                const id = document.getElementById('deleteItemId').value;
+                
+                if (!id) {
+                    displayResult('deleteItemResult', 'Error', 'Please enter an item ID', false);
+                    return { success: false, error: 'ID is required' };
+                }
+                
+                const response = await fetch(`./items/${id}`, {
+                    method: 'DELETE',
+                });
+                
+                const text = await response.text();
+                displayResult('deleteItemResult', response.status, text, response.ok);
+                return { success: response.ok, data: text };
+            } catch (error) {
+                displayResult('deleteItemResult', 'Error', error.message, false);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // 7. Auth Test
+        async function testAuth() {
+            try {
+                const response = await fetch('./auth-test');
+                const text = await response.text();
+                displayResult('authTestResult', response.status, text, response.ok);
+                return { success: response.ok, data: text };
+            } catch (error) {
+                displayResult('authTestResult', 'Error', error.message, false);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Clear all results
+        function clearAllResults() {
+            const resultElements = document.querySelectorAll('.result');
+            resultElements.forEach(element => {
+                element.innerHTML = '';
+            });
+        }
+
+        // Run all tests sequentially
+        async function runAllTests() {
+            clearAllResults();
+            
+            // Test root endpoint
+            await testRoot();
+            
+            // Get all items first
+            await getAllItems();
+            
+            // Create a new item
+            const createResult = await createItem();
+            
+            // If item creation was successful, test the other operations
+            if (createResult.success) {
+                // Get the item by ID
+                await getItemById();
+                
+                // Update the item
+                await updateItem();
+                
+                // Get the updated item
+                await getItemById();
+                
+                // Delete the item
+                await deleteItem();
+                
+                // Verify the item was deleted by trying to get it again
+                await getItemById();
+            }
+            
+            // Test auth endpoint
+            await testAuth();
+        }
+
+        // Event listeners
+        document.getElementById('testRoot').addEventListener('click', testRoot);
+        document.getElementById('getAllItems').addEventListener('click', getAllItems);
+        document.getElementById('createItem').addEventListener('click', createItem);
+        document.getElementById('getItemById').addEventListener('click', getItemById);
+        document.getElementById('updateItem').addEventListener('click', updateItem);
+        document.getElementById('deleteItem').addEventListener('click', deleteItem);
+        document.getElementById('testAuth').addEventListener('click', testAuth);
+        document.getElementById('testAll').addEventListener('click', runAllTests);
+        document.getElementById('clearAll').addEventListener('click', clearAllResults);
+    </script>
+</body>
+</html>
