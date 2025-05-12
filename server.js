@@ -50,54 +50,65 @@ const Item = mongoose.model('Item', itemSchema);
 
 // Create
 app.post('/items', async (req, res) => {
+  console.log('POST /items called with body:', req.body);
   try {
     const newItem = new Item(req.body);
     const savedItem = await newItem.save();
     res.status(201).json(savedItem);
   } catch (error) {
+    console.error('Error in POST /items:', error.message);
     res.status(400).json({ message: error.message });
   }
 });
 
 // Read All
 app.get('/items', async (req, res) => {
+  console.log('GET /items called');
   try {
     const items = await Item.find();
+    console.log('Retrieved items from MongoDB:', items);
     res.json(items);
   } catch (error) {
+    console.error('Error in GET /items:', error.message);
     res.status(500).json({ message: error.message });
   }
 });
 
 // Read One
 app.get('/items/:id', async (req, res) => {
+  console.log(`GET /items/${req.params.id} called`);
   try {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Item not found' });
     res.json(item);
   } catch (error) {
+    console.error(`Error in GET /items/${req.params.id}:`, error.message);
     res.status(500).json({ message: error.message });
   }
 });
 
 // Update
 app.put('/items/:id', async (req, res) => {
+  console.log(`PUT /items/${req.params.id} called with body:`, req.body);
   try {
     const updatedItem = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedItem) return res.status(404).json({ message: 'Item not found' });
     res.json(updatedItem);
   } catch (error) {
+    console.error(`Error in PUT /items/${req.params.id}:`, error.message);
     res.status(400).json({ message: error.message });
   }
 });
 
 // Delete
 app.delete('/items/:id', async (req, res) => {
+  console.log(`DELETE /items/${req.params.id} called`);
   try {
     const deletedItem = await Item.findByIdAndDelete(req.params.id);
     if (!deletedItem) return res.status(404).json({ message: 'Item not found' });
     res.json({ message: 'Item deleted' });
   } catch (error) {
+    console.error(`Error in DELETE /items/${req.params.id}:`, error.message);
     res.status(500).json({ message: error.message });
   }
 });
