@@ -62,9 +62,19 @@ app.use((req, res, next) => {
 
 // Add CORS headers to allow cross-origin requests
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  // Allow specific GitHub codespace URL and all other origins
+  const allowedOrigins = ['https://musical-bassoon-974j4j7g7jqh69-5000.app.github.dev', 'http://localhost:5000'];
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
+  
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
   
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
