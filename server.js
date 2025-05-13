@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const os = require('os');
 require('dotenv').config();
 
@@ -60,19 +61,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Add CORS headers to allow cross-origin requests
-app.use((req, res, next) => {
-  // Simply allow all origins for testing
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
+// Configure CORS for all routes
+app.use(cors({
+  origin: '*', // Allow all origins
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept,Authorization,x-api-key'
+}));
 
 // Serve static files from the current directory
 app.use(express.static(__dirname));
